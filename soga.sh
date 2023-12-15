@@ -70,7 +70,7 @@ confirm() {
 }
 
 confirm_restart() {
-    confirm "是否重启soga" "y"
+    confirm "是否重启rookiecloud" "y"
     if [[ $? == 0 ]]; then
         restart
     else
@@ -84,7 +84,7 @@ before_show_menu() {
 }
 
 install() {
-    bash <(curl -Ls https://raw.githubusercontent.com/vaxilu/soga/master/install.sh)
+    bash <(curl -Ls https://raw.githubusercontent.com/rookiecloud/soga-shell/master/install.sh)
     if [[ $? == 0 ]]; then
         if [[ $# == 0 ]]; then
             start
@@ -108,9 +108,9 @@ update() {
 #        fi
 #        return 0
 #    fi
-    bash <(curl -Ls https://raw.githubusercontent.com/vaxilu/soga/master/install.sh) $version
+    bash <(curl -Ls https://raw.githubusercontent.com/rookiecloud/soga-shell/master/install.sh) $version
     if [[ $? == 0 ]]; then
-        echo -e "${green}更新完成，已自动重启 soga，请使用 soga log 查看运行日志${plain}"
+        echo -e "${green}更新完成，已自动重启 rookiecloud，请使用 rookiecloud log 查看运行日志${plain}"
         exit
     fi
 
@@ -120,27 +120,27 @@ update() {
 }
 
 config() {
-    soga-tool $*
+    rookiecloud-tool $*
 }
 
 uninstall() {
-    confirm "确定要卸载 soga 吗?" "n"
+    confirm "确定要卸载 rookiecloud 吗?" "n"
     if [[ $? != 0 ]]; then
         if [[ $# == 0 ]]; then
             show_menu
         fi
         return 0
     fi
-    systemctl stop soga
-    systemctl disable soga
-    rm /etc/systemd/system/soga.service -f
+    systemctl stop rookiecloud
+    systemctl disable rookiecloud
+    rm /etc/systemd/system/rookiecloud.service -f
     systemctl daemon-reload
     systemctl reset-failed
-    rm /etc/soga/ -rf
-    rm /usr/local/soga/ -rf
+    rm /etc/rookiecloud/ -rf
+    rm /usr/local/rookiecloud/ -rf
 
     echo ""
-    echo -e "卸载成功，如果你想删除此脚本，则退出脚本后运行 ${green}rm /usr/bin/soga -f${plain} 进行删除"
+    echo -e "卸载成功，如果你想删除此脚本，则退出脚本后运行 ${green}rm /usr/bin/rookiecloud -f${plain} 进行删除"
     echo ""
 
     if [[ $# == 0 ]]; then
@@ -152,16 +152,16 @@ start() {
     check_status
     if [[ $? == 0 ]]; then
         echo ""
-        echo -e "${green}soga已运行，无需再次启动，如需重启请选择重启${plain}"
+        echo -e "${green}rookiecloud已运行，无需再次启动，如需重启请选择重启${plain}"
     else
-        systemctl reset-failed soga
-        systemctl start soga
+        systemctl reset-failed rookiecloud
+        systemctl start rookiecloud
         sleep 2
         check_status
         if [[ $? == 0 ]]; then
-            echo -e "${green}soga 启动成功，请使用 soga log 查看运行日志${plain}"
+            echo -e "${green}rookiecloud 启动成功，请使用 rookiecloud log 查看运行日志${plain}"
         else
-            echo -e "${red}soga可能启动失败，请稍后使用 soga log 查看日志信息${plain}"
+            echo -e "${red}rookiecloud可能启动失败，请稍后使用 rookiecloud log 查看日志信息${plain}"
         fi
     fi
 
@@ -171,13 +171,13 @@ start() {
 }
 
 stop() {
-    systemctl stop soga
+    systemctl stop rookiecloud
     sleep 2
     check_status
     if [[ $? == 1 ]]; then
-        echo -e "${green}soga 停止成功${plain}"
+        echo -e "${green}rookiecloud 停止成功${plain}"
     else
-        echo -e "${red}soga停止失败，可能是因为停止时间超过了两秒，请稍后查看日志信息${plain}"
+        echo -e "${red}rookiecloud停止失败，可能是因为停止时间超过了两秒，请稍后查看日志信息${plain}"
     fi
 
     if [[ $# == 0 ]]; then
@@ -186,14 +186,14 @@ stop() {
 }
 
 restart() {
-    systemctl reset-failed soga
-    systemctl restart soga
+    systemctl reset-failed rookiecloud
+    systemctl restart rookiecloud
     sleep 2
     check_status
     if [[ $? == 0 ]]; then
-        echo -e "${green}soga 重启成功，请使用 soga log 查看运行日志${plain}"
+        echo -e "${green}rookiecloud 重启成功，请使用 rookiecloud log 查看运行日志${plain}"
     else
-        echo -e "${red}soga可能启动失败，请稍后使用 soga log 查看日志信息${plain}"
+        echo -e "${red}rookiecloud可能启动失败，请稍后使用 rookiecloud log 查看日志信息${plain}"
     fi
     if [[ $# == 0 ]]; then
         before_show_menu
@@ -201,11 +201,11 @@ restart() {
 }
 
 enable() {
-    systemctl enable soga
+    systemctl enable rookiecloud
     if [[ $? == 0 ]]; then
-        echo -e "${green}soga 设置开机自启成功${plain}"
+        echo -e "${green}rookiecloud 设置开机自启成功${plain}"
     else
-        echo -e "${red}soga 设置开机自启失败${plain}"
+        echo -e "${red}rookiecloud 设置开机自启失败${plain}"
     fi
 
     if [[ $# == 0 ]]; then
@@ -214,11 +214,11 @@ enable() {
 }
 
 disable() {
-    systemctl disable soga
+    systemctl disable rookiecloud
     if [[ $? == 0 ]]; then
-        echo -e "${green}soga 取消开机自启成功${plain}"
+        echo -e "${green}rookiecloud 取消开机自启成功${plain}"
     else
-        echo -e "${red}soga 取消开机自启失败${plain}"
+        echo -e "${red}rookiecloud 取消开机自启失败${plain}"
     fi
 
     if [[ $# == 0 ]]; then
@@ -227,30 +227,30 @@ disable() {
 }
 
 show_log() {
-    journalctl -u soga.service -e --no-pager -f
+    journalctl -u rookiecloud.service -e --no-pager -f
     if [[ $# == 0 ]]; then
         before_show_menu
     fi
 }
 
 update_shell() {
-    wget -O /usr/bin/soga -N --no-check-certificate https://github.com/vaxilu/soga/raw/master/soga.sh
+    wget -O /usr/bin/rookiecloud -N --no-check-certificate https://github.com/rookiecloud/soga-shell/raw/master/rookiecloud.sh
     if [[ $? != 0 ]]; then
         echo ""
         echo -e "${red}下载脚本失败，请检查本机能否连接 Github${plain}"
         before_show_menu
     else
-        chmod +x /usr/bin/soga
+        chmod +x /usr/bin/rookiecloud
         echo -e "${green}升级脚本成功，请重新运行脚本${plain}" && exit 0
     fi
 }
 
 # 0: running, 1: not running, 2: not installed
 check_status() {
-    if [[ ! -f /etc/systemd/system/soga.service ]]; then
+    if [[ ! -f /etc/systemd/system/rookiecloud.service ]]; then
         return 2
     fi
-    temp=$(systemctl status soga | grep Active | awk '{print $3}' | cut -d "(" -f2 | cut -d ")" -f1)
+    temp=$(systemctl status rookiecloud | grep Active | awk '{print $3}' | cut -d "(" -f2 | cut -d ")" -f1)
     if [[ x"${temp}" == x"running" ]]; then
         return 0
     else
@@ -259,7 +259,7 @@ check_status() {
 }
 
 check_enabled() {
-    temp=$(systemctl is-enabled soga)
+    temp=$(systemctl is-enabled rookiecloud)
     if [[ x"${temp}" == x"enabled" ]]; then
         return 0
     else
@@ -271,7 +271,7 @@ check_uninstall() {
     check_status
     if [[ $? != 2 ]]; then
         echo ""
-        echo -e "${red}soga已安装，请不要重复安装${plain}"
+        echo -e "${red}rookiecloud已安装，请不要重复安装${plain}"
         if [[ $# == 0 ]]; then
             before_show_menu
         fi
@@ -285,7 +285,7 @@ check_install() {
     check_status
     if [[ $? == 2 ]]; then
         echo ""
-        echo -e "${red}请先安装soga${plain}"
+        echo -e "${red}请先安装rookiecloud${plain}"
         if [[ $# == 0 ]]; then
             before_show_menu
         fi
@@ -299,15 +299,15 @@ show_status() {
     check_status
     case $? in
         0)
-            echo -e "soga状态: ${green}已运行${plain}"
+            echo -e "rookiecloud状态: ${green}已运行${plain}"
             show_enable_status
             ;;
         1)
-            echo -e "soga状态: ${yellow}未运行${plain}"
+            echo -e "rookiecloud状态: ${yellow}未运行${plain}"
             show_enable_status
             ;;
         2)
-            echo -e "soga状态: ${red}未安装${plain}"
+            echo -e "rookiecloud状态: ${red}未安装${plain}"
     esac
 }
 
@@ -320,9 +320,9 @@ show_enable_status() {
     fi
 }
 
-show_soga_version() {
-    echo -n "soga 版本："
-    /usr/local/soga/soga -v
+show_rookiecloud_version() {
+    echo -n "rookiecloud 版本："
+    /usr/local/rookiecloud/rookiecloud -v
     echo ""
     if [[ $# == 0 ]]; then
         before_show_menu
@@ -330,44 +330,44 @@ show_soga_version() {
 }
 
 show_usage() {
-    echo "soga 管理脚本使用方法: "
+    echo "rookiecloud 管理脚本使用方法: "
     echo "------------------------------------------"
-    echo "soga                    - 显示管理菜单 (功能更多)"
-    echo "soga start              - 启动 soga"
-    echo "soga stop               - 停止 soga"
-    echo "soga restart            - 重启 soga"
-    echo "soga enable             - 设置 soga 开机自启"
-    echo "soga disable            - 取消 soga 开机自启"
-    echo "soga log                - 查看 soga 日志"
-    echo "soga update             - 更新 soga 最新版"
-    echo "soga update x.x.x       - 安装 soga 指定版本"
-    echo "soga config             - 显示配置文件内容"
-    echo "soga config xx=xx yy=yy - 自动设置配置文件"
-    echo "soga install            - 安装 soga"
-    echo "soga uninstall          - 卸载 soga"
-    echo "soga version            - 查看 soga 版本"
+    echo "rookiecloud                    - 显示管理菜单 (功能更多)"
+    echo "rookiecloud start              - 启动 rookiecloud"
+    echo "rookiecloud stop               - 停止 rookiecloud"
+    echo "rookiecloud restart            - 重启 rookiecloud"
+    echo "rookiecloud enable             - 设置 rookiecloud 开机自启"
+    echo "rookiecloud disable            - 取消 rookiecloud 开机自启"
+    echo "rookiecloud log                - 查看 rookiecloud 日志"
+    echo "rookiecloud update             - 更新 rookiecloud 最新版"
+    echo "rookiecloud update x.x.x       - 安装 rookiecloud 指定版本"
+    echo "rookiecloud config             - 显示配置文件内容"
+    echo "rookiecloud config xx=xx yy=yy - 自动设置配置文件"
+    echo "rookiecloud install            - 安装 rookiecloud"
+    echo "rookiecloud uninstall          - 卸载 rookiecloud"
+    echo "rookiecloud version            - 查看 rookiecloud 版本"
     echo "------------------------------------------"
 }
 
 show_menu() {
     echo -e "
-  ${green}soga 后端管理脚本，${plain}${red}不适用于docker${plain}
+  ${green}rookiecloud 后端管理脚本，${plain}${red}不适用于docker${plain}
 
   ${green}0.${plain} 退出脚本
 ————————————————
-  ${green}1.${plain} 安装 soga
-  ${green}2.${plain} 更新 soga
-  ${green}3.${plain} 卸载 soga
+  ${green}1.${plain} 安装 rookiecloud
+  ${green}2.${plain} 更新 rookiecloud
+  ${green}3.${plain} 卸载 rookiecloud
 ————————————————
-  ${green}4.${plain} 启动 soga
-  ${green}5.${plain} 停止 soga
-  ${green}6.${plain} 重启 soga
-  ${green}7.${plain} 查看 soga 日志
+  ${green}4.${plain} 启动 rookiecloud
+  ${green}5.${plain} 停止 rookiecloud
+  ${green}6.${plain} 重启 rookiecloud
+  ${green}7.${plain} 查看 rookiecloud 日志
 ————————————————
-  ${green}8.${plain} 设置 soga 开机自启
-  ${green}9.${plain} 取消 soga 开机自启
+  ${green}8.${plain} 设置 rookiecloud 开机自启
+  ${green}9.${plain} 取消 rookiecloud 开机自启
 ————————————————
- ${green}10.${plain} 查看 soga 版本
+ ${green}10.${plain} 查看 rookiecloud 版本
  "
     show_status
     echo && read -p "请输入选择 [0-10]: " num
@@ -393,7 +393,7 @@ show_menu() {
         ;;
         9) check_install && disable
         ;;
-        10) check_install && show_soga_version
+        10) check_install && show_rookiecloud_version
         ;;
         *) echo -e "${red}请输入正确的数字 [0-10]${plain}"
         ;;
@@ -423,7 +423,7 @@ if [[ $# > 0 ]]; then
         ;;
         "uninstall") check_install 0 && uninstall 0
         ;;
-        "version") check_install 0 && show_soga_version 0
+        "version") check_install 0 && show_rookiecloud_version 0
         ;;
         *) show_usage
     esac
